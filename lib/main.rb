@@ -1,11 +1,24 @@
-class Main
+module WordList
   attr_reader :word_list
 
-  def initialize
-    @word_list = File.read('word_list.txt').split('\n')
-    @secret_word = 0
+  @@word_list = Array.new
+
+  @@file = File.open('word_list.txt', 'r').each do |line|
+    if line.chomp.length.between?(5, 12)
+      @@word_list.push(line.chomp)
+    end
   end
 end
 
-game = Main.new
-p game.word_list
+class Game
+  attr_reader :secret_word
+
+  include WordList
+
+  def initialize
+    @secret_word = @@word_list.sample
+  end
+end
+
+game = Game.new
+p game.secret_word
