@@ -14,16 +14,12 @@ end
 
 class Game
   attr_reader :secret_word
-  attr_reader :display_string
-  attr_reader :revealed_letters
-  attr_reader :hangman
-  attr_accessor :stage
 
   include WordList
   include HangedMen
 
   def initialize
-    @secret_word = @@word_list.sample
+    @secret_word = @@word_list.sample.upcase
 
     @revealed_letters = Hash.new
     @guessed_letters = Array.new
@@ -66,8 +62,6 @@ class Game
     end
   end
 
-  public
-
   def check_guess(char)
     @guessed_letters.push(char)
 
@@ -81,17 +75,56 @@ class Game
 
     refresh_display
   end
+
+  def win_ner
+    puts "Congradulations! You won!"
+    puts "You got the answer in #{@num_o_guesses} guesses!"
+    play_again?
+  end
+
+  def lo_ser
+    puts "Haha! You lost!"
+    puts "You are too stupid to guess the word #{@secret_word}"
+    puts "dumbass lol"
+    play_again?
+  end
+
+  def play_again?
+    puts "\nDo you want to play again? (y/n)"
+    @yes_or_no = gets.chomp.downcase.strip
+
+    exit if @yes_or_no != 'y'
+
+    initialize
+    play
+  end
+
+  public
+
+  def play
+    until @stage == 6 || !@revealed_letters.values.include?('_') do
+      puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      puts @hangman, @display_string
+      puts "Guessed Letters: #{@guessed_letters.join(', ')}"
+
+      @input = gets.chomp.upcase
+
+      win_ner if @input == @secret_word
+
+      next if @input.length != 1
+      next if @guessed_letters.include?(@input)
+      
+      check_guess(@input)
+    end
+
+    lo_ser if @stage == 6
+    win_ner unless @revealed_letters.include?('_')
+    puts "E0"
+  end
 end
 
 game = Game.new
 
 p game.secret_word
 
-game.check_guess("e")
-p game.display_string, game.revealed_letters
-
-puts game.hangman
-6.times do
-  game.check_guess("e")
-  puts game.hangman
-end
+game.play
