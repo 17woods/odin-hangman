@@ -1,4 +1,5 @@
 require './lib/hangedmen.rb'
+require './lib/menu.rb'
 
 module WordList
   attr_reader :word_list
@@ -13,10 +14,11 @@ module WordList
 end
 
 class Game
-  attr_reader :secret_word
+  attr_reader :stage, :num_o_guesses, :secret_word, :guessed_letters
 
   include WordList
   include HangedMen
+  include Menu
 
   def initialize
     @secret_word = @@word_list.sample.upcase
@@ -103,11 +105,13 @@ class Game
 
   def play
     until @stage == 6 || !@revealed_letters.values.include?('_') do
-      puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnter S4V3 to save\n\n"
       puts @hangman, @display_string
       puts "Guessed Letters: #{@guessed_letters.join(', ')}"
 
       @input = gets.chomp.upcase
+
+      save_game if @input == "S4V3"
 
       win_ner if @input == @secret_word
 
@@ -124,7 +128,4 @@ class Game
 end
 
 game = Game.new
-
-p game.secret_word
-
-game.play
+game.main_menu
