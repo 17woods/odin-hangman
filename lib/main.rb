@@ -1,5 +1,6 @@
 require './lib/hangedmen.rb'
 require './lib/menu.rb'
+require 'json'
 
 module WordList
   attr_reader :word_list
@@ -14,22 +15,26 @@ module WordList
 end
 
 class Game
-  attr_reader :stage, :num_o_guesses, :secret_word, :guessed_letters
-
   include WordList
   include HangedMen
   include Menu
 
-  def initialize
-    @secret_word = @@word_list.sample.upcase
+  def initialize(secret_word=@@word_list.sample.upcase,
+    revealed_letters=Hash.new, guessed_letters=Array.new, num_o_guesses=0,
+    stage=0, loaded=false)
 
-    @revealed_letters = Hash.new
-    @guessed_letters = Array.new
-    @num_o_guesses = 0
-    @stage = 0
+    @secret_word = secret_word
 
-    @secret_word.each_char do |char|
-      @revealed_letters[char] = "_"
+    @revealed_letters = revealed_letters
+    @guessed_letters = guessed_letters
+    @num_o_guesses = num_o_guesses
+    @stage = stage
+    @loaded = loaded
+
+    unless @loaded
+      @secret_word.each_char do |char|
+        @revealed_letters[char] = "_"
+      end
     end
 
     refresh_display
@@ -105,13 +110,16 @@ class Game
 
   def play
     until @stage == 6 || !@revealed_letters.values.include?('_') do
-      puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnter S4V3 to save\n\n"
+      puts "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
+      "\n\n\nEnter 123 to save\nEnter 000 to exit\n"
+
       puts @hangman, @display_string
       puts "Guessed Letters: #{@guessed_letters.join(', ')}"
 
       @input = gets.chomp.upcase
 
-      save_game if @input == "S4V3"
+      save_game if @input == "123"
+      exit if @input == "000"
 
       win_ner if @input == @secret_word
 
