@@ -12,13 +12,27 @@ end
 
 class Game
   attr_reader :secret_word
+  attr_reader :display_string
 
   include WordList
 
   def initialize
     @secret_word = @@word_list.sample
+    
+    @revealed_letters = Hash.new
+    @display_string = String.new
+
+    @secret_word.each_char do |char|
+      @revealed_letters[char] = "_"
+      @display_string += "#{@revealed_letters[char]}\s"
+    end
+
+    @display_string.strip!
   end
 end
 
+# for each letter i must add a reference to it's value in the hash
+
 game = Game.new
 p game.secret_word
+p game.display_string
